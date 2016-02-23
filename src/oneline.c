@@ -325,6 +325,22 @@ void oneline_init_basics()
   oneline_find_all_modules();
 }
 
+oneline_message_t_ptr oneline_message_from_string( char* message )
+{
+  oneline_log("oneline_message_from_string()",  oneline_log_msg_init("oneline_message_from_string()", __LINE__, "Entering message from string",  "INFO"));
+  json_value* json_value_ptr;
+  json_value_ptr =json_parse( (const char*)message,sizeof(message) );
+  oneline_message_t_ptr  oneline_msg= (oneline_message_t_ptr)malloc(sizeof(message) );
+  size_t len =sizeof(json_value_ptr);
+  size_t i = 0;
+    json_value*  stream_type = json_value_ptr->u.array.values[0];
+    json_value* data = json_value_ptr->u.array.values[1];
+ 
+    oneline_msg->stream_type= (char*)stream_type->u.string.ptr;
+    oneline_msg->data = (char*)data->u.string.ptr;
+    return oneline_msg; 
+}
+
 char* get_substring(char* input_character, int start_offset, int end_offset)
 {
   char* new_ptr=(char*)malloc(sizeof(input_character));

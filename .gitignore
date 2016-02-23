@@ -1,4 +1,8 @@
 *.o
 *.pyc
+*.egg
 /src/*.o
+/src/dist/
+/src/build/
+/src/oneline.egg-info
 /python/oneline/*.pyc

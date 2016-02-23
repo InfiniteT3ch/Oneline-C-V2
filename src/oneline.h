@@ -1,6 +1,7 @@
 
 
 #include "Python.h"
+#include "json.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +62,11 @@ struct OnelineLog {
    char* data;
    int line_no;
 } oneline_log_t;
+struct OnelineMessage {
+   char* stream_type;
+   char* data;
+} oneline_message_t;
+
 
 typedef struct OnelineAPI* oneline_api_t_ptr;
 typedef struct OnelineAPIS* oneline_apis_t_ptr;
@@ -68,6 +74,7 @@ typedef struct OnelineModule* oneline_module_t_ptr;
 typedef struct OnelineModules* oneline_modules_t_ptr;
 typedef struct OnelineLog* oneline_log_t_ptr;
 typedef struct OnelineConfiguration* oneline_configuration_t_ptr;
+typedef struct OnelineMessage* oneline_message_t_ptr;
 
  
 
@@ -92,5 +99,9 @@ char* oneline_invoke_object_callback(oneline_module_t_ptr module, char*  oneline
 void oneline_append_module(oneline_module_t_ptr module_name);
 void oneline_append_api(oneline_api_t_ptr api_ptr);
 char* get_substring(char* input_character,int start_offset, int end_offset);
+oneline_message_t_ptr oneline_message_from_string( char* message );
+
+
+
 
 

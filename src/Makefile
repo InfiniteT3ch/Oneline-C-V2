@@ -1,7 +1,7 @@
 CC 		= gcc
-CFLAGS 	= -I /usr/local/include/python2.7/ -lpthread -I ../lib/ 
+CFLAGS 	= -I /usr/include/python2.6/ -lm -lpthread -lpython2.6 -I ../lib/  
 
-OBJECTS = /usr/lib/libpython2.7.so.1.0  oneline.o websocket.o
+OBJECTS = oneline.o websocket.o  json.o
 EXEC 	= main
 
 .PHONY:  main
@@ -18,6 +18,9 @@ oneline.o: oneline.c oneline.h
 	$(CC) $(CFLAGS) -c oneline.c
 websocket.o: websocket.c websocket.h
 	$(CC) $(CFLAGS) -c websocket.c
+
+json.o: json.c json.h
+	$(CC) $(CFLAGS) -c json.c
 
 main: $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o main main.c

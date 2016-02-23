@@ -5,17 +5,32 @@
 
 import bson
 import json
+import ast
 ONELINE_SETTINGS = dict(
    root_dir="/usr/local/onelinev2/"
 )
-def oneline_parse_message(message):
+def parse(message):
   if isinstance(message,str):
     literal = ast.literal_eval(message.__str__())
     return bson.loads(bytearray(literal).__str__())
   return message
-def oneline_pack_message(message):
-  bytes = map(ord, bson.dumps(message)).__str__()
-  return bytes
+def pack(message):
+  if isinstance(message,dict):
+    bytes = map(ord, bson.dumps(message)).__str__()
+    return bytes
+  return message
+
+## by default all communication is singular
+def singular(message):
+  pass
+## multicast a message
+## this just needs to add the multicast = 1 flag which will
+## tell the Oneline server to send to all
+## people listening on this module
+def multicast(message)
+  pass
+   
+
 
 ## basics for getting configurations
 ## and  other things 
