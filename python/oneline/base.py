@@ -22,13 +22,15 @@ def pack(message):
 
 ## by default all communication is singular
 def singular(message):
-  pass
+  jsonmsg=json.dumps(message)
+  return ["singular",jsonmsg]
 ## multicast a message
 ## this just needs to add the multicast = 1 flag which will
 ## tell the Oneline server to send to all
 ## people listening on this module
 def multicast(message)
-  pass
+  jsonmsg=json.dumps(message)
+  return ["multicast",jsonmsg]
    
 
 
