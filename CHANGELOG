@@ -1,0 +1,12 @@
+
+04/25/16 (0.0.1-RC1)
+---------------------------------------
+
++ Added support for listener in oneline. Runs in event loop,
+offers replacement for multithreaded interface in Oneline V1
++ Tested Command Line Features:
+   - Client:
+      onelinev2 pack "module_name"
+      onelinev2 init "module_name"
+
+
