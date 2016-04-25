@@ -15,7 +15,7 @@ def create_all_paths(dirs):
      os.mkdir("/usr/local/onelinev2/{0}".format(i))
 def create_cmd_exec():
    cwd=os.getcwd()
-   shutil.copyfile(cwd+"/oneline/command_line_exec.py", "/usr/local/onelinev2/ext/command_line_exec.py")
+   shutil.copyfile(cwd+"/onelinev2/command_line_exec.py", "/usr/bin/onelinev2")
 
 class OnelineBuild(build_py):  
 	def run(self):
@@ -31,13 +31,16 @@ class OnelineBuild(build_py):
 	  else:
 	     print "Removing previous Oneline V2 installation"
 	     shutil.rmtree("/usr/local/onelinev2/")
+             if os.path.isfile("/usr/bin/onelinev2"):
+               os.remove("/usr/bin/onelinev2")
+
 	     os.mkdir("/usr/local/onelinev2/")
 	     create_all_paths(paths)
 	     create_cmd_exec()
      
 
 
-setup(name="oneline",
+setup(name="onelinev2",
       version="2.0.0",
       description="",
       maintainer="Nadir Hamid",
@@ -47,7 +50,7 @@ setup(name="oneline",
       license="MIT",
       long_description="",
       cmdclass=dict(build_py=OnelineBuild),
-      packages=["oneline"], 
+      packages=["onelinev2"], 
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',

@@ -265,6 +265,7 @@ oneline_api_t_ptr oneline_import_module(oneline_module_t_ptr module)
 	  oneline_api->module_name=module->module_name;
 	 oneline_log("oneline_import_module()", oneline_log_msg_init("", __LINE__, "Appending API", "INFO"));
     	 oneline_log("oneline_import_module()", oneline_log_msg_init("", __LINE__, "Registering Module", "INFO"));
+	 oneline_log("oneline_import_module()", oneline_log_msg_init("", __LINE__, module->module_name, "INFO"));
 	 module->module_obj=pymodule;
 
 	 oneline_append_api( oneline_api );
@@ -308,8 +309,8 @@ void oneline_init_basics()
   Py_Initialize();
   Py_SetProgramName("oneline");
   PyObject* pathObj=  PySys_GetObject("path");
-  oneline_log("oneline_init_basics()", oneline_log_msg_init("", __LINE__, "Registering /usr/local/oneline/modules", "INFO"));
-  PyList_Append(pathObj, PyString_FromString("/usr/local/oneline/modules/"));
+  oneline_log("oneline_init_basics()", oneline_log_msg_init("", __LINE__, "Registering /usr/local/onelinev2/modules", "INFO"));
+  PyList_Append(pathObj, PyString_FromString("/usr/local/onelinev2/modules/"));
   printf("ONELINE: Init Basics %s", "oneline_init_basics()");
   oneline_log("oneline_init_basics()", (oneline_log_t_ptr) oneline_log_msg_init("", __LINE__, "", "INFO"));
   oneline_modules=(oneline_modules_t_ptr)malloc(sizeof(oneline_modules_t));
@@ -318,9 +319,9 @@ void oneline_init_basics()
   oneline_apis->head= NULL;
   oneline_log("oneline_init_basics()", (oneline_log_t_ptr) oneline_log_msg_init("", __LINE__, "", "INFO"));
 
-  oneline_module_directory =(char*)malloc( strlen("/usr/local/oneline/modules/") +1 ); // null pointer
+  oneline_module_directory =(char*)malloc( strlen("/usr/local/onelinev2/modules/") +1 ); // null pointer
   oneline_log("oneline_init_basics()", oneline_log_msg_init("", __LINE__, "", "INFO"));
-  strcpy(oneline_module_directory, "/usr/local/oneline/modules/");
+  strcpy(oneline_module_directory, "/usr/local/onelinev2/modules/");
 
   oneline_find_all_modules();
 }

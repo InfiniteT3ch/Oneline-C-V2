@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 ## Oneline V2 
 ## @author Nadir Hamid
 ## @license MIT
@@ -39,7 +41,7 @@ class Oneline_V2_CommandLine_Server(object):
 	
    def start(self, *args, **kwargs):
       os.chdir('/usr/local/onelinev2/')
-      self.pid = subprocess.Popen(['oneline',self.ip, self.port])
+      self.pid = subprocess.Popen(['/usr/local/onelinev2/bin/oneline',self.ip, self.port])
       self.write_pid( self.pid )
       self.write_settings( self.ip,  self.port )
    def stop( self, *args, **kwargs):
@@ -89,16 +91,16 @@ class Oneline_V2_CommandLine(object):
 	 
      self.known_opts=dict(
 	server=[
-		dict( cmd='--start',  needs_arg=False, callable=True ),
-		dict(  cmd='--stop',  needs_arg=False, callable=True),
-	  	dict( cmd='--restart', needs_arg=False, callable=True ),
-		dict( cmd='--ip',  needs_arg=True, callable=False ),
-		dict( cmd='--port', needs_arg=True, callable=False)
+		dict( cmd='start',  needs_arg=False, callable=True ),
+		dict(  cmd='stop',  needs_arg=False, callable=True),
+	  	dict( cmd='restart', needs_arg=False, callable=True ),
+		dict( cmd='ip',  needs_arg=True, callable=False ),
+		dict( cmd='port', needs_arg=True, callable=False)
 		],
     	client=[
-		dict( cmd='--pack', needs_arg=True, callable=True),
-		dict( cmd='--controller', needs_arg=True, callable=True ),
-		dict( cmd='--init', needs_arg=True, callable=True)
+		dict( cmd='pack', needs_arg=True, callable=True),
+		dict( cmd='controller', needs_arg=True, callable=True ),
+		dict( cmd='init', needs_arg=True, callable=True)
 	   ]
        )
      self.run()
@@ -123,7 +125,7 @@ class Oneline_V2_CommandLine(object):
 		key=this_argument,
 		val=next_argument
 	  	))
-        if this_argument=="--help":
+        if this_argument=="help":
 	    self.called_help =True
      self.run_server_cmds()
      self.run_client_cmds()
@@ -131,25 +133,26 @@ class Oneline_V2_CommandLine(object):
 	  self.help()
   def help( self  ):
         help_string="""
-	Welcome to Oneline C-V2 Command Line Help
- 	server options:
-	  --start: starts the  server
-	  --stop: stops the server
-	  --restart: restarts the server
-         client options:
-	  --pack:  pack an existing oneline module
-	  --init: initialize a new oneline module
-	  --controller: run controller commands
+Welcome to Oneline C-V2 Command Line Help
+    server options:
+    start: starts the  server
+    stop: stops the server
+    restart: restarts the server
+
+client options:
+    pack:  pack an existing oneline module
+    init: initialize a new oneline module
+    controller: run controller commands
 	 """
 
         Oneline_V2_CommandLine_Log.stdout( help_string )
 
   def type_of_cmd(self, check1, arg):
        for i in self.known_opts['client']:
-	   if  arg==i  and check1== 'client':
+	   if  arg==i['cmd']  and check1== 'client':
 	  	return  i
        for i in self.known_opts['server']:
-	   if arg==i  and check1 == 'server':
+	   if arg==i['cmd']  and check1 == 'server':
  	  	return i
        return False
 	  
@@ -162,9 +165,9 @@ class Oneline_V2_CommandLine(object):
        for i in  self.client_cmds:
 	    self.process_cmd(self.client, i)
   def process_cmd(self,instance,cmd):
-       if cmd['needs_arg']:
+       if cmd['arg']['needs_arg']:
 	  setattr(instance,cmd['key'],cmd['val'])
-       if cmd['callable']:
+       if cmd['arg']['callable']:
 	  callable_fn = getattr( instance,cmd['key'])
 	  callable_fn( cmd['val'] )
           

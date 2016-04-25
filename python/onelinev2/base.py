@@ -28,7 +28,7 @@ def singular(message):
 ## this just needs to add the multicast = 1 flag which will
 ## tell the Oneline server to send to all
 ## people listening on this module
-def multicast(message)
+def multicast(message):
   jsonmsg=json.dumps(message)
   return ["multicast",jsonmsg]
    
@@ -64,5 +64,6 @@ class Oneline(object):
   @staticmethod 
   def run( msg ):
       return msg
+
 
 
