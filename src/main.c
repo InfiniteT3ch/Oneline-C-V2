@@ -31,7 +31,7 @@
 #include <unistd.h>
 #include "websocket.h"
 #include "oneline.h"
-#define PORT 8088
+#define PORT 9000
 #define BUF_LEN 0xFFFF
 #define PACKET_DUMP
 
@@ -91,6 +91,19 @@ void clientWorker(int clientSocket)
             perror("recv failed");
             return;
         }
+
+	// run our listener loop if we are in normal state
+        if ( state == WS_STATE_NORMAL ) {
+         char* oneline_char_listener = oneline_invoke_object_callback( module, "listener", "");
+         prepareBuffer;
+         wsMakeFrame(oneline_char_listener, strlen(oneline_char_listener), gBuffer, &frameSize, WS_TEXT_FRAME);
+         if (safeSend(clientSocket,gBuffer,frameSize)== EXIT_FAILURE) {
+	     break;
+         }
+        initNewFrame;
+        }
+
+
         #ifdef PACKET_DUMP
         printf("in packet:\n");
         fwrite(gBuffer, 1, readed, stdout);

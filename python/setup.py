@@ -2,6 +2,7 @@
 import os
 import sys
 import shutil
+import stat
 
 try:
 	from setuptools import setup
@@ -11,22 +12,43 @@ except ImportError:
 from distutils.command.build_py import build_py
 
 def create_all_paths(dirs):
+  current_dir=os.getcwd()
   for i in dirs:
-     os.mkdir("/usr/local/onelinev2/{0}".format(i))
+     full_name="{0}/{1}".format(current_dir,i)
+     target_name="/usr/local/onelinev2/{0}".format(i)
+     shutil.copytree(full_name,target_name)
+def create_all_links(links):
+   current_dir=os.getcwd()
+   for i in links:
+      full_name="{0}/{1}".format(current_dir,i)
+      target_name="/usr/local/onelinev2/{0}".format(i)
+      os.system("ln -s {0} {1}".format(full_name,target_name))
+      
+
 def create_cmd_exec():
    cwd=os.getcwd()
    shutil.copyfile(cwd+"/onelinev2/command_line_exec.py", "/usr/bin/onelinev2")
+   os.chmod("/usr/bin/onelinev2",777)
 
 class OnelineBuild(build_py):  
 	def run(self):
 	  paths = [
 		  'ext',
 		'modules',
-		'conf'
+		'conf',
+                'controllers',
+                'html',
+                'js',
+                'css'
 		]
+          links= [
+               'placeholders',
+               'lib'
+           ]
 	  if not os.path.isdir("/usr/local/onelinev2/"):
 	     os.mkdir("/usr/local/onelinev2/")
 	     create_all_paths(paths)
+             create_all_links(links)
 	     create_cmd_exec()
 	  else:
 	     print "Removing previous Oneline V2 installation"
@@ -36,7 +58,9 @@ class OnelineBuild(build_py):
 
 	     os.mkdir("/usr/local/onelinev2/")
 	     create_all_paths(paths)
+             create_all_links(links)
 	     create_cmd_exec()
+          super(OnelineBuild,self).__init__()
      
 
 

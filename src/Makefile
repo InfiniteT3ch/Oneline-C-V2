@@ -2,7 +2,7 @@ CC 		= gcc
 CFLAGS 	= -I /usr/include/python2.6/ -lm -lpthread -lpython2.6 -I ../lib/  
 
 OBJECTS = oneline.o websocket.o  json.o
-EXEC 	= main
+EXEC 	= oneline
 
 .PHONY:  main
 
@@ -23,5 +23,7 @@ json.o: json.c json.h
 	$(CC) $(CFLAGS) -c json.c
 
 main: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o main main.c
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(EXEC) main.c
+	cp -rf $(EXEC) /usr/bin/$(EXEC)
+       
 

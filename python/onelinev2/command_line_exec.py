@@ -9,7 +9,17 @@ import psutil
 import json
 import sys
 import os
+import re
 
+
+class Oneline_V2_CommandLine_Errors(object):
+  CLIENT_NAME_NOT_USABLE="Name must consist of alphanumerics, numbers and underscores"
+  ARGS_TOO_LESS="Not enough arguments were given"
+class Oneline_V2_CommandLine_Messages(object):
+  PACKING_MODULE="Packing module.."
+  CREATING_MODULE="Creating module.." 
+  USING_CONTROLLER="Using controller.."
+   
 
 class Oneline_V2_CommandLine_Log(object):
   @staticmethod 
@@ -20,8 +30,17 @@ class Oneline_V2_CommandLine_Log(object):
   def write(msg):
      print "Oneline: %s\n" %( msg )
   @staticmethod
+  def error(msg):
+     print "Oneline: ERROR %s \n"%s (msg)
+  @staticmethod
   def stdout(msg):
      print "%s"%(msg)
+
+def Oneline_V2_CommandLine_Not_Implemented():
+   Oneline_V2_CommandLine_Log(
+        "This has not yet been implemented.. please check https://github.com/nadirhamid/oneline-v2 for more"
+     )
+
 
 ## hold the current server and its PID
 ##
@@ -73,12 +92,104 @@ class Oneline_V2_CommandLine_Server(object):
       return None
 
 class Oneline_V2_CommandLine_Client(object):
+   def __init__(self):
+      pass
+   def _check_name(self, module_name):
+     reg_match=re.compile("[a-z0-9_]+")
+     return False if not re.findall(reg_match,module_name) else True
+
+   def _files(self, name):
+     files= [
+                dict(
+                name="{0}.py".format(name), placeholder="/usr/local/onelinev2/placeholders/module.py",
+                link="/usr/local/onelinev2/modules/{0}.py".format(name)
+                ),
+                dict(
+                name="{0}.conf".format(name), placeholder="/usr/local/onelinev2/placeholders/config.conf",
+                link="/usr/local/onelinev2/conf/{0}".format(name)
+                ),
+                dict( 
+                name="{0}.controller.py".format(name),  placeholder="/usr/local/onelinev2/placeholders/controller.py",
+                link="/usr/local/onelinev2/controllers/{0}.controller.py".format(name)
+                ),
+                dict(
+                name="{0}.html".format(name), placeholder="/usr/local/onelinev2/placeholders/html.html",
+                link="/usr/local/onelinev2/html/{0}.html".format(name)
+                ),
+                dict(
+                name="{0}.js".format(name), placeholder="/usr/local/onelinev2/placeholders/javascript.js",
+                link="/usr/local/onelinev2/js/{0}.js".format(name)
+                ),
+                dict(
+                name="{0}.css".format(name), placeholder="/usr/local/onelinev2/placeholders/css.css",
+                link="/usr/local/onelinev2/css/{0}.css".format(name)
+                )
+           ]
+     return files
+
+   def _libraries(self):
+        libraries =[
+             dict(
+                name="oneline.min.js", placeholder="/usr/local/onelinev2/lib/oneline.min.js",
+                link=False
+            )
+           ]
+        return libraries
+
+
    def pack(self,*args,**kwargs):
-      pass
+       Oneline_V2_CommandLine_Log.write(     
+            Oneline_V2_CommandLine_Messages.PACKING_MODULE
+        )
+    
+       if  len( args ) > 0: 
+          if  self._check_name( args[0] ):
+            files=  self._files(args[0])
+            for i in files:
+              full_name=os.getcwd()+"/"+i['name']
+              os.system("ln -s {0} {1}".format( full_name, i['link'] ) )
+              Oneline_V2_CommandLine_Log.write("Linked %s"%(i['name']) )
+          else:
+            Oneline_V2_CommandLine_Log.error(
+                Oneline_V2_CommandLine_Errors.CLIENT_NAME_NOT_USABLE)
+       else:
+          Oneline_V2_CommandLine_Log.error(
+            Oneline_V2_CommandLine_Errors.ARGS_TOO_LESS)
+            
+        
+
    def controller(self,*args,**kwargs):
-      pass
-   def init(self,*args,**kwargs):
-      pass
+      return Oneline_V2_CommandLine_Not_Implemented()
+   def make(self,*args,**kwargs):
+      current_dir=os.getcwd()
+    
+      Oneline_V2_CommandLine_Log.write(
+        Oneline_V2_CommandLine_Messages.CREATING_MODULE
+       )
+      if len( args ) > 0:
+          if self._check_name( args[0] ):
+               name =args[0]
+               libs_and_files=self._files(name)+self._libraries()
+               for i in libs_and_files:
+                  full_name = current_dir+"/"+i['name']
+                  new_file= open(full_name,"w+")
+                  placeholder_file= open(i['placeholder'], "r")
+                  new_file.write( placeholder_file.read() )
+                  new_file.close()
+                  placeholder_file.close()
+                  Oneline_V2_CommandLine_Log.write("Wrote %s"%(i['name']) )
+                  if  i['link']:
+                     Oneline_V2_CommandLine_Log.write("Linking %s"%(i['name']) )
+                     os.system("ln -s {0} {0}".format(full_name, i['link']) )
+          else:
+            Oneline_V2_CommandLine_Log.error(
+                Oneline_V2_CommandLine_Errors.CLIENT_NAME_NOT_USABLE
+            )
+      else:
+          Oneline_V2_CommandLine_Log.error(
+               Oneline_V2_CommandLine_Errors.ARGS_TOO_LESS
+           )
+       
 
 
 class Oneline_V2_CommandLine(object):
@@ -100,7 +211,7 @@ class Oneline_V2_CommandLine(object):
     	client=[
 		dict( cmd='pack', needs_arg=True, callable=True),
 		dict( cmd='controller', needs_arg=True, callable=True ),
-		dict( cmd='init', needs_arg=True, callable=True)
+		dict( cmd='make', needs_arg=True, callable=True)
 	   ]
        )
      self.run()
@@ -141,7 +252,7 @@ Welcome to Oneline C-V2 Command Line Help
 
 client options:
     pack:  pack an existing oneline module
-    init: initialize a new oneline module
+    make: initialize a new oneline module
     controller: run controller commands
 	 """
 
@@ -149,10 +260,10 @@ client options:
 
   def type_of_cmd(self, check1, arg):
        for i in self.known_opts['client']:
-	   if  arg==i['cmd']  and check1== 'client':
+	   if  (arg==i['cmd']  and check1== 'client'):
 	  	return  i
        for i in self.known_opts['server']:
-	   if arg==i['cmd']  and check1 == 'server':
+	   if (arg==i['cmd']  and check1 == 'server'):
  	  	return i
        return False
 	  
@@ -165,11 +276,9 @@ client options:
        for i in  self.client_cmds:
 	    self.process_cmd(self.client, i)
   def process_cmd(self,instance,cmd):
-       if cmd['arg']['needs_arg']:
-	  setattr(instance,cmd['key'],cmd['val'])
        if cmd['arg']['callable']:
-	  callable_fn = getattr( instance,cmd['key'])
-	  callable_fn( cmd['val'] )
+  	   callable_fn = getattr( instance,cmd['key'])
+	   callable_fn( cmd['val'] )
           
 	  
   
