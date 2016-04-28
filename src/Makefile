@@ -2,7 +2,7 @@ CC 		= gcc
 CFLAGS 	= -I /usr/include/python2.6/ -lm -lpthread -lpython2.6 -I ../lib/  
 
 OBJECTS = oneline.o websocket.o  json.o
-EXEC 	= oneline
+EXEC 	= onelinev2-server
 
 .PHONY:  main
 

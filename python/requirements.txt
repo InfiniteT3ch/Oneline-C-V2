@@ -1,2 +1,2 @@
-psutil
-bson
+psutil==4.1.0
+bson==0.4.3

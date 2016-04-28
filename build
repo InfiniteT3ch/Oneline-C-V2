@@ -1,0 +1,12 @@
+#! /usr/bin/python
+
+import os
+cwd=os.getcwd()
+os.chdir(cwd+"/python")
+os.system("python setup.py build")
+os.system("python setup.py install")
+os.chdir(cwd+"/src")
+os.system("make")
+os.system("onelinev2 start")
+
+
