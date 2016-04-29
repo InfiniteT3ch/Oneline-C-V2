@@ -18,7 +18,9 @@ class Oneline_V2_CommandLine_Errors(object):
 class Oneline_V2_CommandLine_Messages(object):
   PACKING_MODULE="Packing module.."
   CREATING_MODULE="Creating module.." 
+  REMOVING_MODULE="Removing module.."
   USING_CONTROLLER="Using controller.."
+  
    
 
 class Oneline_V2_CommandLine_Log(object):
@@ -159,6 +161,24 @@ class Oneline_V2_CommandLine_Client(object):
 
    def controller(self,*args,**kwargs):
       return Oneline_V2_CommandLine_Not_Implemented()
+
+   def remove(self,*args,**kwargs):
+      Oneline_V2_CommandLine_Log.write(
+        Oneline_V2_CommandLine_Messages.REMOVING_MODULE
+        )
+      if len(args)>0:
+         files=self._files( args[0] )
+         for i in files:
+            ##symbolic link could also be dead
+            if  i['link'] and (os.path.exists( i['link'] ) ) :
+               Oneline_V2_CommandLine_Log.write("Removing %s"%( i['name'] ) )
+               os.remove( i['link'] )
+      else:
+          Oneline_V2_CommandLine_Log.error(
+            Oneline_V2_CommandLine_Errors.ARGS_TOO_LESS
+         )
+    
+
    def make(self,*args,**kwargs):
       current_dir=os.getcwd()
     
@@ -179,7 +199,7 @@ class Oneline_V2_CommandLine_Client(object):
                   Oneline_V2_CommandLine_Log.write("Wrote %s"%(i['name']) )
                   if  i['link']:
                      Oneline_V2_CommandLine_Log.write("Linking %s"%(i['name']) )
-                     os.system("ln -s {0} {0}".format(full_name, i['link']) )
+                     os.system("ln -s {0} {1}".format(full_name, i['link']) )
           else:
             Oneline_V2_CommandLine_Log.error(
                 Oneline_V2_CommandLine_Errors.CLIENT_NAME_NOT_USABLE
@@ -210,7 +230,8 @@ class Oneline_V2_CommandLine(object):
     	client=[
 		dict( cmd='pack', needs_arg=True, callable=True),
 		dict( cmd='controller', needs_arg=True, callable=True ),
-		dict( cmd='make', needs_arg=True, callable=True)
+		dict( cmd='make', needs_arg=True, callable=True),
+                dict( cmd='remove', needs_arg=True, callable=True)
 	   ]
        )
      self.run()
@@ -244,15 +265,15 @@ class Oneline_V2_CommandLine(object):
   def help( self  ):
         help_string="""
 Welcome to Oneline C-V2 Command Line Help
-    server options:
-    start: starts the  server
-    stop: stops the server
-    restart: restarts the server
+server options:
+start: starts the  server
+stop: stops the server
+restart: restarts the server
 
 client options:
-    pack:  pack an existing oneline module
-    make: initialize a new oneline module
-    controller: run controller commands
+pack:  pack an existing oneline module
+make: initialize a new oneline module
+remove: remove a module
 	 """
 
         Oneline_V2_CommandLine_Log.stdout( help_string )

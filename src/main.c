@@ -32,7 +32,7 @@
 #include "websocket.h"
 #include "oneline.h"
 #define PORT 9000
-#define BUF_LEN 0xFFFF
+#define BUF_LEN 5000000
 #define PACKET_DUMP
 
 uint8_t gBuffer[BUF_LEN];
@@ -93,7 +93,9 @@ void clientWorker(int clientSocket)
         }
 
 	// run our listener loop if we are in normal state
-        if ( state == WS_STATE_NORMAL ) {
+        
+	/*
+	if ( state == WS_STATE_NORMAL ) {
          char* oneline_char_listener = oneline_invoke_object_callback( module, "listener", "");
          prepareBuffer;
          wsMakeFrame(oneline_char_listener, strlen(oneline_char_listener), gBuffer, &frameSize, WS_TEXT_FRAME);
@@ -102,11 +104,14 @@ void clientWorker(int clientSocket)
          }
         initNewFrame;
         }
+	*/
 
 
+	//oneline_log("event loop: reading", oneline_log_msg_init("event loop: reading", gBuffer,__LINE__,"INFO"));
         #ifdef PACKET_DUMP
         printf("in packet:\n");
-        fwrite(gBuffer, 1, readed, stdout);
+
+        fwrite(gBuffer, readedLength, BUF_LEN-readedLength, stdout);
         printf("\n");
         #endif
         readedLength+= readed;

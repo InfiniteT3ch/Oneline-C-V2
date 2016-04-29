@@ -31,8 +31,6 @@ def create_cmd_exec():
    cwd=os.getcwd()
    shutil.copyfile(cwd+"/onelinev2/command_line_exec.py", "/usr/bin/onelinev2")
    os.chmod("/usr/bin/onelinev2",0o4755)
-   os.system("ln -s {0} {1}".format("/usr/bin/onelinev2", "/usr/local/bin/onelinev2"))
-
 class OnelineBuild(build_py):
 	def run(self):
           os.system("pip install -r requirements.txt")

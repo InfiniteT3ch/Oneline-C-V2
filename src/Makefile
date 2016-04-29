@@ -1,5 +1,5 @@
 CC 		= gcc
-CFLAGS 	= -I /usr/include/python2.6/ -lm -lpthread -lpython2.6 -I ../lib/  
+CFLAGS 	= -I /usr/include/python2.7/ -lm -lpthread -lpython2.7 -I ../lib/  
 
 OBJECTS = oneline.o websocket.o  json.o
 EXEC 	= onelinev2-server

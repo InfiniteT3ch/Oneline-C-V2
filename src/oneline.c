@@ -75,9 +75,9 @@ oneline_module_t_ptr oneline_generate_module(char* module_name)
     oneline_log("oneline_generate_module()", oneline_log_msg_init("", __LINE__, "Module parsing", "INFO"));
      char* real_module_name=oneline_parse_module_name(module_name);
      oneline_module_t_ptr oneline_module_obj = (oneline_module_t_ptr) malloc(sizeof(oneline_module_t));
-     oneline_module_obj->module_name = (char*) malloc( sizeof( module_name) );
+     oneline_module_obj->module_name = (char*) malloc( strlen( real_module_name) + 1 );
      strcpy(oneline_module_obj->module_name, real_module_name);
-   oneline_log("oneline_generate_module()", oneline_log_msg_init("", __LINE__,  real_module_name, "INFO"));
+   oneline_log("oneline_generate_module()", oneline_log_msg_init("", __LINE__,  oneline_module_obj->module_name, "INFO"));
     return oneline_module_obj;
 }
 
