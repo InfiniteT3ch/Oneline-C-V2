@@ -170,9 +170,9 @@ class Oneline_V2_CommandLine_Client(object):
          files=self._files( args[0] )
          for i in files:
             ##symbolic link could also be dead
-            if  i['link'] and (os.path.exists( i['link'] ) ) :
-               Oneline_V2_CommandLine_Log.write("Removing %s"%( i['name'] ) )
-               os.remove( i['link'] )
+            #if  i['link'] and (os.path.exists( i['link'] ) ) :
+            Oneline_V2_CommandLine_Log.write("Removing %s"%( i['name'] ) )
+            os.remove( i['link'] )
       else:
           Oneline_V2_CommandLine_Log.error(
             Oneline_V2_CommandLine_Errors.ARGS_TOO_LESS

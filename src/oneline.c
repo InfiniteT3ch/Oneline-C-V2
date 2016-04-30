@@ -145,7 +145,15 @@ char* oneline_invoke_object_callback(oneline_module_t_ptr module, char* oneline_
 		  arguments,
 		 kwargs);
 	     oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, "receiver", "INFO"));
+	   } else if (strcmp(oneline_method, "listener") != -1) {
+	     return_obj=PyObject_Call(
+		  method,	
+		  arguments,
+		  kwargs);
+	      oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, "listener", "INFO"));
 	   }
+		
+			
 
   	Py_DECREF(arguments);
 	Py_DECREF(kwargs);
