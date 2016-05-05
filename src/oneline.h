@@ -15,7 +15,7 @@
 // start/0
 // end/0
 // receive/2
-// provide/2
+// listener/2
 // 
 // This should perform the allocation  of all oneline modules
 // found in /usr/local/oneline/modules as well as create there Python
@@ -101,7 +101,5 @@ void oneline_append_api(oneline_api_t_ptr api_ptr);
 char* get_substring(char* input_character,int start_offset, int end_offset);
 oneline_message_t_ptr oneline_message_from_string( char* message );
 
-
-
-
+#define ONELINE_DEBUG 1
 

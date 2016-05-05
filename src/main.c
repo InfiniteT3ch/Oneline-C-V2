@@ -127,7 +127,7 @@ void clientWorker(int clientSocket)
 	} else {
 	 	//oneline_log("Received buffer", oneline_log_msg_init("EventLoop()", __LINE__, "Received Message", "INFO"));
 	       if ( state == WS_STATE_NORMAL && FD_ISSET(clientSocket, &wFd)  ) {
-		 oneline_log("Sending Listener Message", oneline_log_msg_init("EventLoop()", __LINE__, "Sending Listener Message", "INFO"));
+		 //oneline_log("Sending Listener Message", oneline_log_msg_init("EventLoop()", __LINE__, "Sending Listener Message", "INFO"));
 		  char* oneline_char_listener = oneline_invoke_object_callback( module, "listener", "");
 		 prepareWBuffer;
 		 wsMakeFrame(oneline_char_listener, strlen(oneline_char_listener), wBuffer, &frameWSize, WS_TEXT_FRAME);

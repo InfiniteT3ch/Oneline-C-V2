@@ -7,12 +7,14 @@ static char* suffix =".py";
  
 void oneline_log(char* msg, oneline_log_t_ptr  log_msg)
 {
+#ifdef ONELINE_DEBUG
    printf("ONELINE Cv2 (MSG): %s\n", "Entering Oneline Log");
    printf("ONELINE Cv2 (MSG):  %s\n", msg);
    printf("ONELINE Cv2 (DATA): LINENO: %d\n", log_msg->line_no);
    printf("ONELINE Cv2 (DATA): TYPE %s\n", log_msg->type);
    printf("ONELINE Cv2 (DATA): DATA %s\n", log_msg->data);
    //free(log_msg);
+#endif
 }
 oneline_log_t_ptr oneline_log_msg_init(char* msg, int line_no, char*data, char* type)
 {

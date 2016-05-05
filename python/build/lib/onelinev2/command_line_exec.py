@@ -15,6 +15,9 @@ import re
 class Oneline_V2_CommandLine_Errors(object):
   CLIENT_NAME_NOT_USABLE="Name must consist of alphanumerics, numbers and underscores"
   ARGS_TOO_LESS="Not enough arguments were given"
+  CONTROLLER_MISSING="Controller was not found"
+  CONTROLLER_FN_MISSING="Controller function was not found"
+  CONTROLLER_FN_UNCALLABLE="Controller function is not callable"
 class Oneline_V2_CommandLine_Messages(object):
   PACKING_MODULE="Packing module.."
   CREATING_MODULE="Creating module.." 
@@ -33,7 +36,7 @@ class Oneline_V2_CommandLine_Log(object):
      print "Oneline: %s\n" %( msg )
   @staticmethod
   def error(msg):
-     print "Oneline: ERROR %s \n"%s (msg)
+     print "Oneline: ERROR %s \n"% (msg)
   @staticmethod
   def stdout(msg):
      print "%s"%(msg)
@@ -160,6 +163,38 @@ class Oneline_V2_CommandLine_Client(object):
         
 
    def controller(self,*args,**kwargs):
+      Oneline_V2_CommandLine_Log.write(
+        Oneline_V2_CommandLine_Messages.USING_CONTROLLER
+      )
+      if  len(args)>1:
+          cwd=os.getcwd() 
+          if os.path.isfile( "/usr/local/onelinev2/controllers/{0}.controller.py".format( args[0] ) ):
+             os.chdir("/usr/local/onelinev2/controllers/")
+             module=dict() 
+             with open("/usr/local/onelinev2/controllers/{0}.controller.py".format(args[0])) as f:
+                exec(f.read(),module)
+             if args[1] in module.keys():
+                function=module[args[1]]
+                if hasattr( function, '__call__'): 
+                    function()
+                else:
+                    Oneline_V2_CommandLine.write(
+                        Oneline_V2_CommandLine_Errors.CONTROLLER_FN_UNCALLABLE
+                    )
+             else:
+                Oneline_V2_CommandLine.write(
+                    Oneline_V2_CommandLine_Errors.CONTROLLER_FN_MISSING
+                )
+          else:
+            Oneline_V2_CommandLine.write(
+                Oneline_V2_CommandLine_Errors.CONTROLLER_MISSING
+            )
+      else:
+        Oneline_V2_CommandLine.write(
+            Oneline_V2_CommandLine.ARGS_TOO_LESS
+        )
+        
+        
       return Oneline_V2_CommandLine_Not_Implemented()
 
    def remove(self,*args,**kwargs):
@@ -239,22 +274,27 @@ class Oneline_V2_CommandLine(object):
      for i in range(0, len( self.arguments) ):
         try:
            next_argument=  self.arguments[i +  1]
+           all_remaining_arguments=self.arguments[i+1:len(self.arguments)]
 	except Exception, e:
    	   next_argument = None
+           all_remaining_arguments=[]
+        
         this_argument=self.arguments[ i ] 
         server_arg = self.type_of_cmd("server", this_argument)
         if server_arg:
            self.server_cmds.append( dict(
 	 	arg=server_arg,
 		key=this_argument,
-		val=next_argument
+		val=next_argument,
+                args=all_remaining_arguments
 		 ))
         client_arg=self.type_of_cmd("client", this_argument)
 	if client_arg:
 	   self.client_cmds.append( dict(
 		 arg=client_arg,
 		key=this_argument,
-		val=next_argument
+		val=next_argument,
+                args=all_remaining_arguments
 	  	))
         if this_argument=="help":
 	    self.called_help =True
@@ -298,8 +338,8 @@ remove: remove a module
   def process_cmd(self,instance,cmd):
        if cmd['arg']['callable']:
   	   callable_fn = getattr( instance,cmd['key'])
-           if  cmd['val'] :
-	       callable_fn( cmd['val'] )
+           if  len( cmd['args'] ) > 0 :
+	       callable_fn( *cmd['args'] )
            else:
                callable_fn( )
           
