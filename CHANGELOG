@@ -7,6 +7,15 @@ offers replacement for multithreaded interface in Oneline V1
 + Tested Command Line Features:
    - Client:
       onelinev2 pack "module_name"
-      onelinev2 init "module_name"
-
+      onelinev2 make "module_name"
+05/05/16 (0.0.1-RC1p2)
+--------------------------------------
++ tested command features
+    - Client:     
+       onelinev2 pack "module_name"
+       onelinev2 make "module_name"
+       onelinev2 controller "module_name" "controller_function"
+    - Server:
+       onelinev2 start
+       onelinev2 stop
 
