@@ -128,13 +128,16 @@ void clientWorker(int clientSocket)
 	 	//oneline_log("Received buffer", oneline_log_msg_init("EventLoop()", __LINE__, "Received Message", "INFO"));
 	       if ( state == WS_STATE_NORMAL && FD_ISSET(clientSocket, &wFd)  ) {
 		 //oneline_log("Sending Listener Message", oneline_log_msg_init("EventLoop()", __LINE__, "Sending Listener Message", "INFO"));
-		  char* oneline_char_listener = oneline_invoke_object_callback( module, "listener", "");
-		 prepareWBuffer;
-		 wsMakeFrame(oneline_char_listener, strlen(oneline_char_listener), wBuffer, &frameWSize, WS_TEXT_FRAME);
-		 if (safeSend(clientSocket,wBuffer,frameWSize)== EXIT_FAILURE) {
-		     break;
-		 }
-		 initNewWFrame;
+		  oneline_message_t_ptr listener_msg = oneline_invoke_object_callback( module, "listener", "");
+	  	  oneline_log("Trying to call listener", oneline_log_msg_init("EventLoop()", __LINE__, "Trying to listen", "INFO"));
+	 	 if (listener_msg->empty != 0 ) {
+			 prepareWBuffer;
+			 wsMakeFrame(listener_msg->data, strlen(listener_msg->data), wBuffer, &frameWSize, WS_TEXT_FRAME);
+			 if (safeSend(clientSocket,wBuffer,frameWSize)== EXIT_FAILURE) {
+			     break;
+			 }
+			 initNewWFrame;
+		  }
 		}
 		if (FD_ISSET(clientSocket, &rFd)) {
 			oneline_log("Trying to receive Message", oneline_log_msg_init("EventLoop()", __LINE__, "Trying to receive", "INFO"));	
@@ -159,18 +162,6 @@ void clientWorker(int clientSocket)
 			} else {
 			    frameType = wsParseInputFrame(rBuffer, readedLength, &data, &dataSize);
 			}
-
-			// run our listener loop if we are in normal state
-			if ( state == WS_STATE_NORMAL ) {
-			 char* oneline_char_listener = oneline_invoke_object_callback( module, "listener", "");
-			 prepareGBuffer;
-			 wsMakeFrame(oneline_char_listener, strlen(oneline_char_listener), rBuffer, &frameGSize, WS_TEXT_FRAME);
-			 if (safeSend(clientSocket,rBuffer,frameGSize)== EXIT_FAILURE) {
-			     break;
-			 }
-			initNewGFrame;
-			}
-
 			
 			if ((frameType == WS_INCOMPLETE_FRAME && readedLength == BUF_LEN) || frameType == WS_ERROR_FRAME) {
 			    if (frameType == WS_INCOMPLETE_FRAME)
@@ -245,9 +236,9 @@ void clientWorker(int clientSocket)
 				memcpy(recievedString, data, dataSize);
 				recievedString[ dataSize ] = 0;
 			       
-				char* oneline_char_receiver =oneline_invoke_object_callback(module, "receiver", recievedString);
+				oneline_message_t_ptr receiver_msg = oneline_invoke_object_callback(module, "receiver", recievedString);
 				prepareGBuffer;
-				wsMakeFrame(oneline_char_receiver, strlen(oneline_char_receiver), rBuffer, &frameGSize, WS_TEXT_FRAME);
+				wsMakeFrame(receiver_msg->data, strlen(receiver_msg->data), rBuffer, &frameGSize, WS_TEXT_FRAME);
 				free(recievedString);
 			   
 				if (safeSend(clientSocket, rBuffer, frameGSize) == EXIT_FAILURE)

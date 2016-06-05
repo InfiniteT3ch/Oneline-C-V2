@@ -120,7 +120,7 @@ oneline_configuration_t_ptr oneline_parse_configuration( char* configuration_fil
 // @param module_name: The Registered Oneline Module Name
 // @param  oneline_method: A valid Oneline module callback start|end|receiver|provider
 // @param message: The BSON Message
-char* oneline_invoke_object_callback(oneline_module_t_ptr module, char* oneline_method, char*  message) 
+oneline_message_t_ptr oneline_invoke_object_callback(oneline_module_t_ptr module, char* oneline_method, char*  message) 
 {
    PyObject* arguments = Py_BuildValue("(s)", message);
    PyObject* kwargs = PyDict_New();
@@ -162,9 +162,9 @@ char* oneline_invoke_object_callback(oneline_module_t_ptr module, char* oneline_
 
         //PyObject* repr = PyObject_Repr( return_obj );
 
-
-	char* result =  PyString_AsString(return_obj);
+	oneline_message_t_ptr result = oneline_message_from_pyobject(  return_obj );
 	oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, result, "INFO"));
+
 	 return result;
    }
 
@@ -338,7 +338,7 @@ void oneline_init_basics()
 
 oneline_message_t_ptr oneline_message_from_string( char* message )
 {
-  oneline_log("oneline_message_from_string()",  oneline_log_msg_init("oneline_message_from_string()", __LINE__, "Entering message from string",  "INFO"));
+  oneline_log("oneline_message_from_string()",  (oneline_log_t_ptr) oneline_log_msg_init("oneline_message_from_string()", __LINE__, "", "INFO"));
   json_value* json_value_ptr;
   json_value_ptr =json_parse( (const char*)message,sizeof(message) );
   oneline_message_t_ptr  oneline_msg= (oneline_message_t_ptr)malloc(sizeof(message) );
@@ -351,6 +351,21 @@ oneline_message_t_ptr oneline_message_from_string( char* message )
     oneline_msg->data = (char*)data->u.string.ptr;
     return oneline_msg; 
 }
+oneline_message_t_ptr oneline_message_from_pyobject( PyObject* object ) 
+{
+   oneline_log("oneline_message_from_pyobject()", (oneline_log_t_ptr) oneline_log_msg_init("oneline_message_from_pyobject()", __LINE__, "", "INFO"));
+   oneline_message_t_ptr msg = (oneline_message_t_ptr)malloc(sizeof( oneline_message_t ) );
+   if ( object == Py_None ) {
+      msg->empty=1;
+   } else {
+     	char* data = PyString_AsString(object);
+   	msg->data = (char*)malloc(sizeof(data));
+	strcpy(msg->data,data);
+  	msg->empty = 0;
+   }
+   return msg;
+}
+
 
 char* get_substring(char* input_character, int start_offset, int end_offset)
 {

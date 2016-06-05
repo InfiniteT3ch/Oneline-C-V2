@@ -65,7 +65,10 @@ struct OnelineLog {
 struct OnelineMessage {
    char* stream_type;
    char* data;
+   int empty;
 } oneline_message_t;
+
+
 
 
 typedef struct OnelineAPI* oneline_api_t_ptr;
@@ -95,11 +98,12 @@ oneline_api_t_ptr oneline_find_api(char* module_name);
 
 void oneline_init_module( oneline_module_t_ptr module, oneline_api_t_ptr api);
 oneline_api_t_ptr oneline_import_module(oneline_module_t_ptr module);
-char* oneline_invoke_object_callback(oneline_module_t_ptr module, char*  oneline_method, char* message);
+oneline_message_t_ptr oneline_invoke_object_callback(oneline_module_t_ptr module, char*  oneline_method, char* message);
 void oneline_append_module(oneline_module_t_ptr module_name);
 void oneline_append_api(oneline_api_t_ptr api_ptr);
 char* get_substring(char* input_character,int start_offset, int end_offset);
 oneline_message_t_ptr oneline_message_from_string( char* message );
+oneline_message_t_ptr oneline_message_from_pyobject( PyObject* object );
 
 #define ONELINE_DEBUG 1
 
