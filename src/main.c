@@ -152,8 +152,8 @@ void clientWorker(int clientSocket)
 	       if ( state == WS_STATE_NORMAL && FD_ISSET(clientSocket, &wFd)  ) {
 		 //oneline_log("Sending Listener Message", oneline_log_msg_init("EventLoop()", __LINE__, "Sending Listener Message", "INFO"));
 		  oneline_message_t_ptr listener_msg = oneline_invoke_object_callback( module, "listener", "");
-	  	  oneline_log("Trying to call listener", oneline_log_msg_init("EventLoop()", __LINE__, "Trying to listen", "INFO"));
-	 	 if (listener_msg->empty != 0 ) {
+	 	 if (listener_msg->empty == 0 ) {
+	  	        oneline_log("Trying to call listener", oneline_log_msg_init("EventLoop()", __LINE__, "Trying to listen", "INFO"));
 			 prepareWBuffer;
 			 wsMakeFrame(listener_msg->data, strlen(listener_msg->data), wBuffer, &frameWSize, WS_TEXT_FRAME);
 			 int result = safeSend(clientSocket,wBuffer,frameWSize);
@@ -266,12 +266,15 @@ void clientWorker(int clientSocket)
 			       
 				oneline_message_t_ptr receiver_msg = oneline_invoke_object_callback(module, "receiver", recievedString);
 				prepareGBuffer;
-				wsMakeFrame(receiver_msg->data, strlen(receiver_msg->data), rBuffer, &frameGSize, WS_TEXT_FRAME);
-				status = safeSend(clientSocket, rBuffer, frameGSize);
-				clientReceiverMessageFree( receiver_msg, recievedString );
-				if ( status ==EXIT_FAILURE ) {
-				    break;
-				 }
+
+				if (  receiver_msg->empty == 0 ) {
+					wsMakeFrame(receiver_msg->data, strlen(receiver_msg->data), rBuffer, &frameGSize, WS_TEXT_FRAME);
+					status = safeSend(clientSocket, rBuffer, frameGSize);
+					clientReceiverMessageFree( receiver_msg, recievedString );
+					if ( status ==EXIT_FAILURE ) {
+					    break;
+					 }
+				}
 
 				initNewGFrame;
 			    }
