@@ -85,6 +85,28 @@ void clientReset(int clientSocket)
     tv.tv_sec=5;
     tv.tv_usec=0;
 }
+void clientOpenMessageFree(oneline_message_t_ptr message, struct handshake hs)
+{
+   oneline_message_free( &message );
+   freeHandshake( &hs );   
+}
+void clientCloseMessageFree(oneline_message_t_ptr message)
+{
+   oneline_message_free( &message );
+}
+void clientReceiverMessageFree(oneline_message_t_ptr message, uint8_t* receivedString)
+{
+   oneline_message_free( &message );
+   free(receivedString);
+}
+void clientListenerMessageFree(oneline_message_t_ptr message)
+{
+   clientCloseMessageFree(message);
+}
+    
+
+
+
 
 void clientWorker(int clientSocket)
 {
@@ -121,6 +143,7 @@ void clientWorker(int clientSocket)
        clientReset( clientSocket );
 	//oneline_log("Trying to receive", oneline_log_msg_init("EventLoop()", __LINE__, "Trying to receive", "INFO"));
        int result  = select(nfds,&rFd,&wFd,NULL,NULL);
+       int status;
        if ( result == -1 ) {
 	    close(clientSocket);
 	    perror("recv failed");
@@ -133,7 +156,9 @@ void clientWorker(int clientSocket)
 	 	 if (listener_msg->empty != 0 ) {
 			 prepareWBuffer;
 			 wsMakeFrame(listener_msg->data, strlen(listener_msg->data), wBuffer, &frameWSize, WS_TEXT_FRAME);
-			 if (safeSend(clientSocket,wBuffer,frameWSize)== EXIT_FAILURE) {
+			 int result = safeSend(clientSocket,wBuffer,frameWSize);
+			 clientListenerMessageFree(listener_msg);
+			 if ( result == EXIT_FAILURE ) {
 			     break;
 			 }
 			 initNewWFrame;
@@ -208,15 +233,17 @@ void clientWorker(int clientSocket)
 				    exit=1;
 				    break;
 				} else {
-				   oneline_invoke_object_callback(module, "start", "");
-				 }
-				prepareGBuffer;
-				wsGetHandshakeAnswer(&hs, rBuffer, &frameGSize);
-				freeHandshake(&hs);
-				if (safeSend(clientSocket, rBuffer, frameGSize) == EXIT_FAILURE)
-				    break;
-				state = WS_STATE_NORMAL;
-				initNewGFrame;
+				   oneline_message_t_ptr start_msg = oneline_invoke_object_callback(module, "start", "");
+				   prepareGBuffer;
+				   wsGetHandshakeAnswer(&hs, rBuffer, &frameGSize);
+				   status = safeSend(clientSocket, rBuffer, frameGSize);
+				   clientOpenMessageFree(start_msg, hs);
+			  	    if ( status == EXIT_FAILURE) {
+					    break;
+				     }
+				   state = WS_STATE_NORMAL;
+				   initNewGFrame;
+				}
 			    }
 			} else {
 			    if (frameType == WS_CLOSING_FRAME) {
@@ -225,8 +252,9 @@ void clientWorker(int clientSocket)
 				} else {
 				    prepareGBuffer;
 				    wsMakeFrame(NULL, 0, rBuffer, &frameGSize, WS_CLOSING_FRAME);
-				    safeSend(clientSocket, rBuffer, frameGSize);
-				    oneline_invoke_object_callback(module, "end", "");
+				    oneline_message_t_ptr end_msg = oneline_invoke_object_callback(module, "end", "");
+				    status =  safeSend(clientSocket, rBuffer, frameGSize);
+				    clientCloseMessageFree(end_msg);
 				    break;
 				}
 			    } else if (frameType == WS_TEXT_FRAME) {
@@ -239,10 +267,12 @@ void clientWorker(int clientSocket)
 				oneline_message_t_ptr receiver_msg = oneline_invoke_object_callback(module, "receiver", recievedString);
 				prepareGBuffer;
 				wsMakeFrame(receiver_msg->data, strlen(receiver_msg->data), rBuffer, &frameGSize, WS_TEXT_FRAME);
-				free(recievedString);
-			   
-				if (safeSend(clientSocket, rBuffer, frameGSize) == EXIT_FAILURE)
+				status = safeSend(clientSocket, rBuffer, frameGSize);
+				clientReceiverMessageFree( receiver_msg, recievedString );
+				if ( status ==EXIT_FAILURE ) {
 				    break;
+				 }
+
 				initNewGFrame;
 			    }
 			 }

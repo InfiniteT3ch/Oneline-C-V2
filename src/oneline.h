@@ -78,6 +78,7 @@ typedef struct OnelineModules* oneline_modules_t_ptr;
 typedef struct OnelineLog* oneline_log_t_ptr;
 typedef struct OnelineConfiguration* oneline_configuration_t_ptr;
 typedef struct OnelineMessage* oneline_message_t_ptr;
+typedef struct OnelineMessage** oneline_message_t_ptr_ptr;
 
  
 
@@ -104,6 +105,8 @@ void oneline_append_api(oneline_api_t_ptr api_ptr);
 char* get_substring(char* input_character,int start_offset, int end_offset);
 oneline_message_t_ptr oneline_message_from_string( char* message );
 oneline_message_t_ptr oneline_message_from_pyobject( PyObject* object );
+void oneline_message_free( oneline_message_t_ptr_ptr message );
+
 
 #define ONELINE_DEBUG 1
 

@@ -13,7 +13,6 @@ void oneline_log(char* msg, oneline_log_t_ptr  log_msg)
    printf("ONELINE Cv2 (DATA): LINENO: %d\n", log_msg->line_no);
    printf("ONELINE Cv2 (DATA): TYPE %s\n", log_msg->type);
    printf("ONELINE Cv2 (DATA): DATA %s\n", log_msg->data);
-   //free(log_msg);
 #endif
 }
 oneline_log_t_ptr oneline_log_msg_init(char* msg, int line_no, char*data, char* type)
@@ -163,7 +162,7 @@ oneline_message_t_ptr oneline_invoke_object_callback(oneline_module_t_ptr module
         //PyObject* repr = PyObject_Repr( return_obj );
 
 	oneline_message_t_ptr result = oneline_message_from_pyobject(  return_obj );
-	oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, result, "INFO"));
+	oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, result->data, "INFO"));
 
 	 return result;
    }
@@ -357,6 +356,7 @@ oneline_message_t_ptr oneline_message_from_pyobject( PyObject* object )
    oneline_message_t_ptr msg = (oneline_message_t_ptr)malloc(sizeof( oneline_message_t ) );
    if ( object == Py_None ) {
       msg->empty=1;
+      msg->data = '\0';
    } else {
      	char* data = PyString_AsString(object);
    	msg->data = (char*)malloc(sizeof(data));
@@ -364,6 +364,10 @@ oneline_message_t_ptr oneline_message_from_pyobject( PyObject* object )
   	msg->empty = 0;
    }
    return msg;
+}
+void oneline_message_free( oneline_message_t_ptr_ptr message ) {
+    free ( (*message)->data ); 
+    free ( (*message) ); 
 }
 
 
