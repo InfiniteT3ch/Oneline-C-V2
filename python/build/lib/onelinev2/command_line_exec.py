@@ -10,6 +10,7 @@ import json
 import sys
 import os
 import re
+from cookiecutter.main import cookiecutter
 
 
 class Oneline_V2_CommandLine_Errors(object):
@@ -23,6 +24,8 @@ class Oneline_V2_CommandLine_Messages(object):
   CREATING_MODULE="Creating module.." 
   REMOVING_MODULE="Removing module.."
   USING_CONTROLLER="Using controller.."
+class Oneline_V2_CommandLine_Defines(object):
+  COOKIECUTTER_REPO = "https://github.com/InfiniteT3ch/Oneline-C-V2-Template.git"
   
    
 
@@ -45,7 +48,11 @@ def Oneline_V2_CommandLine_Not_Implemented():
    Oneline_V2_CommandLine_Log(
         "This has not yet been implemented.. please check https://github.com/nadirhamid/oneline-v2 for more"
      )
-
+class Oneline_V2_CommandLine_util(object):
+  @staticmethod
+  def getCookieCutter(name):
+      return cookiecutter( Oneline_V2_CommandLine_Defines.COOKIECUTTER_REPO, 
+	 checkout=None, no_input=False, extra_context={"repo_name": name }, overwrite_if_exists=True )
 
 ## hold the current server and its PID
 ##
@@ -215,6 +222,44 @@ class Oneline_V2_CommandLine_Client(object):
     
 
    def make(self,*args,**kwargs):
+      self.makev2(*args,**kwargs)
+
+   def makev2(self,*args,**kwargs):
+      current_dir = os.getcwd()
+      Oneline_V2_CommandLine_Log.write(
+	 Oneline_V2_CommandLine_Messages.CREATING_MODULE
+	)
+      if len( args )>0:
+	 if  self._check_name( args[0] ):
+	     name = args[0]
+	     cookieDir = Oneline_V2_CommandLine_util.getCookieCutter(name)
+	     os.chdir(cookieDir)
+	     name= os.path.basename( cookieDir )
+	     libs= self._files(name)+self._libraries()
+	     for i in libs:
+		if i['link']:
+	 	   full_name = cookieDir +"/"+ i['name']
+		   Oneline_V2_CommandLine_Log.write(
+			"Linking  %s"%(full_name)
+			)
+	  	   os.system("ln -s {0} {1}".format( full_name, i['link']))
+	     Oneline_V2_CommandLine_Log.write(
+			"Made module %s"%(name)
+		)
+	 else:
+	     Oneline_V2_CommandLine_Log.write(
+		Oneline_V2_CommandLine_Errors.CLIENT_NAME_NOT_USABlE
+		)
+      else: 
+	  Oneline_V2_CommandLine_Log.write(
+		Oneline_V2_CommandLine_Errors.ARGS_TOO_LESS
+		)
+	
+			
+			
+
+ 
+   def makev1(self,*args,**kwargs):
       current_dir=os.getcwd()
     
       Oneline_V2_CommandLine_Log.write(

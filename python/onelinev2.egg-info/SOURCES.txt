@@ -2,6 +2,9 @@ setup.py
 onelinev2/__init__.py
 onelinev2/base.py
 onelinev2/command_line_exec.py
+onelinev2/commands.py
+onelinev2/controller.py
+onelinev2/module.py
 onelinev2/setup.py
 onelinev2.egg-info/PKG-INFO
 onelinev2.egg-info/SOURCES.txt

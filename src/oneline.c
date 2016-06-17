@@ -121,13 +121,14 @@ oneline_configuration_t_ptr oneline_parse_configuration( char* configuration_fil
 // @param message: The BSON Message
 oneline_message_t_ptr oneline_invoke_object_callback(oneline_module_t_ptr module, char* oneline_method, char*  message) 
 {
-   PyObject* arguments = Py_BuildValue("(s)", message);
+   PyObject* arguments;
    PyObject* kwargs = PyDict_New();
    PyObject* method = PyObject_GetAttrString(module->obj_obj, oneline_method);
    PyObject* return_obj;
    oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__,module->module_name, "INFO"));
    if ( module != NULL && PyCallable_Check(method) ) {
 	   if ( strcmp(oneline_method, "start") != -1 ) {
+	    arguments = Py_BuildValue("()");
 	    return_obj=PyObject_Call(
 		method,
 	        arguments,
@@ -135,18 +136,21 @@ oneline_message_t_ptr oneline_invoke_object_callback(oneline_module_t_ptr module
 	 	oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, "start", "INFO"));
 
 	  } else if(strcmp(oneline_method, "end") != -1 ) {
+	    arguments= Py_BuildValue("()");
 	    return_obj=PyObject_Call(
 	  	 method,
 	  	arguments,
 	  	  kwargs);
 	     oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, "end", "INFO"));
 	  } else if  (strcmp(oneline_method, "receiver") != -1 ){
+	    arguments = Py_BuildValue("(s)", message);
 	    return_obj=PyObject_Call(
 		  method,
 		  arguments,
 		 kwargs);
 	     oneline_log("oneline_invoke_object_callback()", oneline_log_msg_init("", __LINE__, "receiver", "INFO"));
 	   } else if (strcmp(oneline_method, "listener") != -1) {
+	     arguments = Py_BuildValue("()");
 	     return_obj=PyObject_Call(
 		  method,	
 		  arguments,
